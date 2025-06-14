@@ -51,8 +51,13 @@ router.put("/login", async (req, res) => {
       });
     }
   } catch (error) {
-    res.status(400).send(error.message || "Error logging in");
+    res.send( {
+        success: false,
+        message: error.message ,
+        isLogin: false,
+      })
   }
+  
 });
 
 module.exports = router;
