@@ -3,10 +3,24 @@
 const express = require("express"),
   router = express.Router(),
   service = require("../BL/users.service");
-router.get("/", async (req, res) => {
+router.get("/checkIfUserExist", async (req, res) => {
   try {
     const { username } = req.query;
-    res.send(await service.getUser(username));
+    const user = await service.getUser(username);
+    if (user) {
+      return res.send({
+        success: true,
+        userFound: true,
+        message: "User was found",
+      });
+    }
+    else{
+      res.send({
+        success: true,
+        userFound: false,
+        message: "User not found",
+      });
+    }
   } catch (error) {
     res.status(400).send(error.message || "Error fetching user");
   }
@@ -51,9 +65,9 @@ router.put("/login", async (req, res) => {
       });
     }
   } catch (error) {
-    res.send( {
+    res.status(401).send( {
         success: false,
-        message: error.message ,
+        message: 'Invalid username or password',
         isLogin: false,
       })
   }

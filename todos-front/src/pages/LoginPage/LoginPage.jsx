@@ -38,16 +38,26 @@ export default function LoginPage() {
             return;
         }
         setIsLoading(true);
-        const data = await apiRequest({ url: `/users/login`, method: 'put', body:{username , password}, initialData: null });
-        setIsLoading(false);
-        // Placeholder login logic (replace with actual API call)
-        if (data.isLogin) {
+        try {
+            // Placeholder for actual login logic   
+            const data = await apiRequest({ url: `/users/login`, method: 'put', body:{username , password}, initialData: null });
+               if (data.isLogin) {
             localStorage.setItem('user', JSON.stringify(data.user));
             nav('/home')
 
         } else {
             setError('Invalid username or password');
         }
+        }
+        catch (err) {
+            setIsLoading(false);
+            setError(err.response?.data?.message || 'An error occurred during login');
+            console.error(err);
+            return;
+        }
+        setIsLoading(false);
+        // Placeholder login logic (replace with actual API call)
+     
 
     };
     return (

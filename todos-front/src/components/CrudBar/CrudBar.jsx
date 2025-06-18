@@ -13,12 +13,14 @@ import DeletePopUp from "../DeletePopUp/DeletePopUp";
 // It is used in the Post, Album, and Todo components
 
 export default function CrudBar({
+  updateFunction,
   editingFor,
   selected,
   onDelete,
   additionalData,
   refetchFunction,
 }) {
+  
   const { openPopup, closePopup } = usePopup();
   const isItemBelongsToUser = (message) => {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -43,6 +45,7 @@ export default function CrudBar({
       content: (
         <EditorPopUp
           isNew={false}
+          updateFunction={updateFunction}
           refetchFunction={refetchFunction}
           inputsValue={selected}
           additionalData={additionalData}
@@ -57,6 +60,7 @@ export default function CrudBar({
       content: (
         <EditorPopUp
           isNew={true}
+          updateFunction={updateFunction}
           refetchFunction={refetchFunction}
           onClose={closePopup}
           additionalData={additionalData}

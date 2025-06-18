@@ -13,7 +13,7 @@ import SortTodos from "../../components/SortTodos/SortTodos";
 
 export default function TodosPage() {
   const [todos, setTodos] = useState([]);
-  const [selectedTodo, setSelectedTodo] = useState(null);
+  const [selected, setSelected] = useState(null);
   const userId = getUserId();
   const { data, loading, error, refetch } = useApiRequest({
     url: `/todos?userId=${userId}`,
@@ -37,18 +37,29 @@ export default function TodosPage() {
   };
 
   const onDelete = async () => {
-    if (!selectedTodo) return;
-    const { id } = selectedTodo;
-    await apiRequest({ url: `/todos/delete-task/${id}`, method: "DELETE" });
-    await refetch();
-    setSelectedTodo(null);
+    if (!selected) return;
+    const { id } = selected;
+    const isDeleted = await apiRequest({
+      url: `/todos/delete-task/${id}`,
+      method: "DELETE",
+    });
+    if (!isDeleted || isDeleted.success === false) {
+      return;
+    }
+    setTodos(todos.filter((todo) => todo.id !== id));
+    setSelected(null);
   };
+    const updateFunction = (newData) => {
+    setTodos(newData);
+    setSelected(null);
+  }
   return (
     <div className="todos-container">
       <CrudBar
         editingFor={"todos"}
         refetchFunction={refetch}
-        selected={selectedTodo}
+        updateFunction={updateFunction}
+        selected={selected}
         additionalData={{ userId: userId }}
         onDelete={onDelete}
       />
@@ -61,8 +72,8 @@ export default function TodosPage() {
             <Todo
               key={todo.id}
               {...todo}
-              selected={selectedTodo}
-              setSelected={setSelectedTodo}
+              selected={selected}
+              setSelected={setSelected}
             />
           ))}
         </div>

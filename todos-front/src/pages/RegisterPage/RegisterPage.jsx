@@ -79,9 +79,9 @@ export default function RegisterPage() {
     
     if (validateForm()) {
         setIsLoading(true);
-        const data = await apiRequest({ url: `/users?username=${formData.username}`, method: 'get', });
+        const data = await apiRequest({ url: `/users/checkIfUserExist?username=${formData.username}`, method: 'get', });
         
-        if(data && data.username ) {
+        if(data && data?.userFound ) {
           setGeneralError('Username already exists');
         }
         else {

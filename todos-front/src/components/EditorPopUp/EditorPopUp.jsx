@@ -11,6 +11,7 @@ export default function EditorPopUp({
   inputsValue,
   editingFor,
   additionalData = {},
+  updateFunction,
   refetchFunction,
 }) {
   const subTitle = isNew ? "Create" : "Edit";
@@ -44,7 +45,20 @@ export default function EditorPopUp({
       method: isNew ? "post" : "put",
       body: { ...formEntries, ...additionalData },
     }).then((res) => {
-      refetchFunction();
+      if (!res || res.success === false) {
+        onClose();
+        return;
+      }
+      const itemChanged = res.data;
+      updateFunction((prevData) => {
+        if (isNew) {
+          return [...prevData, res.data];
+        } else {
+          return prevData.map((item) =>
+            item.id === res.data.id ? res.data : item
+          );
+        }
+      });
     });
     onClose();
   };

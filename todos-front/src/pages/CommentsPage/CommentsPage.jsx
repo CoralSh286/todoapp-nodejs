@@ -27,13 +27,21 @@ export default function CommentsPage() {
 
   const onDelete = async () => {
     if (!selected) return;
-    const { id } = selected; 
-    await apiRequest({ url: `/comments/delete-comment/${id}`, method: "DELETE" }); 
+    const { id } = selected;
+    const isDeleted = await apiRequest({
+      url: `/comments/delete-comment/${id}`,
+      method: "DELETE",
+    });
+    if (!isDeleted ||  isDeleted.success === false) {
+      return;
+    }
     setComments(comments.filter((comment) => comment.id !== id));
-    setSelected(null); 
-    await refetch();
+    setSelected(null);
   };
-
+  const updateFunction = (newData) => {
+    setComments(newData);
+    setSelected(null);
+  }
   return (
     <div className="comments-page">
       <PageHeader title={`Comments for Post #${postId}`} />
@@ -41,6 +49,7 @@ export default function CommentsPage() {
         additionalData={{ postId }}
         refetchFunction={refetch}
         editingFor="comments"
+        updateFunction={updateFunction}
         selected={selected}
         onDelete={onDelete}
       />

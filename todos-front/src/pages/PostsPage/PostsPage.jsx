@@ -12,7 +12,7 @@ import SearchBar from "../../components/SearchBar/SearchBar";
 
 export default function PostsPage() {
   const [posts, setPosts] = useState([]);
-  const [selectedPost, setSelectedPost] = useState(null); 
+  const [selected, setSelected] = useState(null);
   const userId = getUserId();
   const { data, loading, error, refetch } = useApiRequest({
     url: `/posts?userId=${userId}`,
@@ -32,20 +32,31 @@ export default function PostsPage() {
     setPosts(data.data || []);
   };
   const onDelete = async () => {
-    if (!selectedPost) return; // אם לא נבחרה משימה, אל תעשה כלום
-    const { id } = selectedPost; // קח את ה-id של המשימה הנבחרת
-    await apiRequest({ url: `/posts/delete-post/${id}`, method: "DELETE" }); // מחק את המשימה מה-API
-    await refetch();
-    setSelectedPost(null); // נקה את הסטייט של המשימה הנבחרת
+    if (!selected) return; // אם לא נבחרה משימה, אל תעשה כלום
+    const { id } = selected; // קח את ה-id של המשימה הנבחרת
+    const isDeleted = await apiRequest({
+      url: `/posts/delete-post/${id}`,
+      method: "DELETE",
+    }); // מחק את המשימה מה-API
+    if (!isDeleted || isDeleted.success === false) {
+      return; // אם המחיקה נכשלה, אל תעשה כלום
+    }
+    setPosts(posts.filter((post) => post.id !== id)); // עדכן את הסטייט של המשימות
+    setSelected(null); // נקה את הסטייט של המשימה הנבחרת
   };
+    const updateFunction = (newData) => {
+    setPosts(newData);
+    setSelected(null);
+  }
   return (
     <div className="posts-container">
       <CrudBar
         editingFor={"posts"}
         onDelete={onDelete}
         refetchFunction={refetch}
+        updateFunction={updateFunction}
         additionalData={{ userId: userId }}
-        selected={selectedPost}
+        selected={selected}
       />
       <PageHeader title={"Posts"} />
       <SearchBar onSubmit={searchQuery} />
@@ -55,8 +66,8 @@ export default function PostsPage() {
             <Post
               key={post.id}
               {...post}
-              selected={selectedPost}
-              setSelected={setSelectedPost}
+              selected={selected}
+              setSelected={setSelected}
             />
           ))}
         </div>

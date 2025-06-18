@@ -21,7 +21,18 @@ router.get("/", async (req, res) => {
 router.post("/add-post", async (req, res) => {
   try {
     const { userId, title, body } = req.body;
-    res.send(await postsService.createNewPost({ userId, title, body }));
+    const newPost = await postsService.createNewPost({ userId, title, body })
+    res.status(201).send({
+      success: true,
+      data: {
+        id: newPost.id,
+        userId: userId,
+        title: title,
+        body: body,
+      },
+      message: "Post created successfully",
+    }); 
+    
   } catch (error) {
     res.status(400).send(error.message || "Error creating post");
   }
@@ -30,7 +41,23 @@ router.put("/update-post/:id", async (req, res) => {
   try {
     const id = req.params.id;
     const { userId, title, body } = req.body;
-    res.send(await postsService.updatePost({ id, userId, title, body }));    
+    const post = await postsService.updatePost({ id, userId, title, body });
+    if (!post || post.length === 0) {
+      return res.status(404).send({
+        success: false,
+        message: "Post not found",
+      });
+    }
+    return res.send({
+      success: true,
+      data: {
+        id: post[0].id,
+        userId: post[0].user_id,
+        title: title,
+        body: body,
+      },
+      message: "Post updated successfully",
+    });    
   } catch (error) {
     res.status(400).send(error.message || "Error updating post");
   }

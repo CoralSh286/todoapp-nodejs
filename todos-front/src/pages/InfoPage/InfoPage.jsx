@@ -19,7 +19,6 @@ export default function InfoPage() {
   if (!userData) {
     return <div className="info-page error">No user information available. Please log in.</div>
   }
-  console.log('userData', userData);
   
   // Get initials for avatar
   const getInitials = () => {

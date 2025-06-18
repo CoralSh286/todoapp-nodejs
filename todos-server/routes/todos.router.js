@@ -24,12 +24,29 @@ router.get("/", async (req, res) => {
 router.post("/add-task", async (req, res) => {
   try {
     const { userId, title, completed } = req.body;
+    const newTodo = await todosService.createNewTodo({
+      userId:userId,
+      isCompleted: completed,
+      todoTask: title,
+    });
+    if (!newTodo ) {
+      return res.status(400).send({
+        success: false,
+        message: "Failed to create todo",
+      });
+    }
     res.send(
-      await todosService.createNewTodo({
-        userId,
-        todoTask: title,
-        isCompleted: completed,
-      })
+      {
+        success: true,
+        data:{
+          id: newTodo.id,
+          userId: userId,
+          title: title,
+          completed: completed,
+        },
+        message: "Todo task created successfully",
+      }
+    
     );
   } catch (error) {
     res.status(400).send(error.message || "Error creating todo");
@@ -40,13 +57,25 @@ router.put("/update-task/:id", async (req, res) => {
   try {
     const taskId = req.params.id;
     const { userId, title, completed } = req.body;
-    res.send(
-      await todosService.updateTodo({
+    const updatedTodo = await todosService.updateTodo({
         userId,
         todoTask: title,
         isCompleted: completed,
         id: taskId,
-      })
+      });
+    if (!updatedTodo || updatedTodo.length === 0) {
+      return res.status(404).send({
+        success: false,
+        message: "Todo not found or update failed",
+      });
+    }
+    // Return the updated todo
+    res.send(
+    {
+      success: true,
+      data:updatedTodo[0],
+      message: "Todo task updated successfully",
+    }
     );
   } catch (error) {
     res.status(400).send(error.message || "Error updating todo");

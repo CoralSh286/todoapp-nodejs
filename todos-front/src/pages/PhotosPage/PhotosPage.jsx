@@ -56,7 +56,6 @@ export default function PhotosPage() {
       await refetch();
       setSelectedPhoto(null);
 
-      console.log("Photo deleted successfully");
     } catch (error) {
       console.error("Failed to delete photo:", error);
     }
